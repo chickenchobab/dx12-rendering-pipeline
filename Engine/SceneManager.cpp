@@ -36,8 +36,8 @@ void SceneManager::Render()
 
 void SceneManager::LoadScene(wstring sceneName)
 {
-	// TODO : ±âÁ¸ Scene Á¤¸®
-	// TODO : ÆÄÀÏ¿¡¼­ Scene Á¤º¸ ·Îµå
+	// TODO : ï¿½ï¿½ï¿½ï¿½ Scene ï¿½ï¿½ï¿½ï¿½
+	// TODO : ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ Scene ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
 
 	_activeScene = LoadTestScene();
 
@@ -52,7 +52,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma region Camera
 	shared_ptr<GameObject> camera = make_shared<GameObject>();
 	camera->AddComponent(make_shared<Transform>());
-	camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45µµ
+	camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45ï¿½ï¿½
 	camera->AddComponent(make_shared<TestCameraScript>());
 	camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 	scene->AddGameObject(camera);

@@ -46,9 +46,9 @@ float4 PS_Main(VS_OUT input) : SV_Target
     float3 viewNormal = input.viewNormal;
     if (g_tex_on_1)
     {
-        // [0, 255] ¹üÀ§¿¡¼­ [0, 1]·Î º¯È¯
+        // [0, 255] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ [0, 1]ï¿½ï¿½ ï¿½ï¿½È¯
         float3 tangentSpaceNormal = g_tex_1.Sample(g_sam_0, input.uv).xyz;
-        // [0, 1] ¹üÀ§¿¡¼­ [-1, 1]·Î º¯È¯
+        // [0, 1] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ [-1, 1]ï¿½ï¿½ ï¿½ï¿½È¯
         tangentSpaceNormal = (tangentSpaceNormal - 0.5f) * 2.f;
         float3x3 matTBN = { input.viewTangent, input.viewBinormal, input.viewNormal };
         viewNormal = normalize(mul(tangentSpaceNormal, matTBN));

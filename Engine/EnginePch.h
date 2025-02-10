@@ -1,9 +1,9 @@
 #pragma once
 
-// std::byte »ç¿ëÇÏÁö ¾ÊÀ½
+// std::byte ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #define _HAS_STD_BYTE 0
 
-// °¢Á¾ include
+// ï¿½ï¿½ï¿½ï¿½ include
 #include <windows.h>
 #include <tchar.h>
 #include <memory>
@@ -33,7 +33,7 @@ using namespace Microsoft::WRL;
 #include <DirectXTex/DirectXTex.h>
 #include <DirectXTex/DirectXTex.inl>
 
-// °¢Á¾ lib
+// ï¿½ï¿½ï¿½ï¿½ lib
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "dxguid")
@@ -45,7 +45,7 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "DirectXTex\\DirectXTex.lib")
 #endif
 
-// °¢Á¾ typedef
+// ï¿½ï¿½ï¿½ï¿½ typedef
 using int8 = __int8;
 using int16 = __int16;
 using int32 = __int32;
@@ -91,10 +91,10 @@ enum
 
 struct WindowInfo
 {
-	HWND	hwnd; // Ãâ·Â À©µµ¿ì
-	int32	width; // ³Êºñ
-	int32	height; // ³ôÀÌ
-	bool	windowed; // Ã¢¸ðµå or ÀüÃ¼È­¸é
+	HWND	hwnd; // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	int32	width; // ï¿½Êºï¿½
+	int32	height; // ï¿½ï¿½ï¿½ï¿½
+	bool	windowed; // Ã¢ï¿½ï¿½ï¿½ or ï¿½ï¿½Ã¼È­ï¿½ï¿½
 };
 
 struct Vertex
