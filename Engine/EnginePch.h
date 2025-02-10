@@ -1,9 +1,9 @@
 #pragma once
 
-// std::byte ������� ����
+// std::byte 사용하지 않는다
 #define _HAS_STD_BYTE 0
 
-// ���� include
+// include
 #include <windows.h>
 #include <tchar.h>
 #include <memory>
@@ -33,7 +33,7 @@ using namespace Microsoft::WRL;
 #include <DirectXTex/DirectXTex.h>
 #include <DirectXTex/DirectXTex.inl>
 
-// ���� lib
+// lib
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "dxguid")
@@ -45,7 +45,7 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "DirectXTex\\DirectXTex.lib")
 #endif
 
-// ���� typedef
+// typedef
 using int8 = __int8;
 using int16 = __int16;
 using int32 = __int32;
@@ -91,10 +91,10 @@ enum
 
 struct WindowInfo
 {
-	HWND	hwnd; // ��� ������
-	int32	width; // �ʺ�
-	int32	height; // ����
-	bool	windowed; // â��� or ��üȭ��
+	HWND	hwnd; // 출력 윈도우
+	int32	width; // 너비
+	int32	height; // 높이
+	bool	windowed; // 창모드 or 전체화면
 };
 
 struct Vertex
