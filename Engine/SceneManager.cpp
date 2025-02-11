@@ -29,15 +29,14 @@ void SceneManager::Render()
 {
 	if (_activeScene)
 	{
-		cout << "Rendered.";
 		_activeScene->Render();
 	}
 }
 
 void SceneManager::LoadScene(wstring sceneName)
 {
-	// TODO : ���� Scene ����
-	// TODO : ���Ͽ��� Scene ���� �ε�
+	// TODO : 기존 Scene 정리
+	// TODO : 파일에서 Scene 정보 로드
 
 	_activeScene = LoadTestScene();
 
@@ -52,10 +51,35 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma region Camera
 	shared_ptr<GameObject> camera = make_shared<GameObject>();
 	camera->AddComponent(make_shared<Transform>());
-	camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
+	camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45도
 	camera->AddComponent(make_shared<TestCameraScript>());
 	camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 	scene->AddGameObject(camera);
+#pragma endregion
+
+#pragma region SkyBox
+	{
+		shared_ptr<GameObject> skybox = make_shared<GameObject>();
+		skybox->AddComponent(make_shared<Transform>());
+		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+		{
+			shared_ptr<Mesh> sphereMesh = GET_SINGLE(Resources)->LoadSphereMesh();
+			meshRenderer->SetMesh(sphereMesh);
+		}
+		{
+			shared_ptr<Shader> shader = make_shared<Shader>();
+			shared_ptr<Texture> texture = make_shared<Texture>();
+			shader->Init(L"..\\Resources\\Shader\\skybox.hlsli",
+				{ RASTERIZER_TYPE::CULL_NONE, DEPTH_STENCIL_TYPE::LESS_EQUAL });
+			texture->Init(L"..\\Resources\\Texture\\Sky01.jpg");
+			shared_ptr<Material> material = make_shared<Material>();
+			material->SetShader(shader);
+			material->SetTexture(0, texture);
+			meshRenderer->SetMaterial(material);
+		}
+		skybox->AddComponent(meshRenderer);
+		scene->AddGameObject(skybox);
+	}
 #pragma endregion
 
 #pragma region Cube
