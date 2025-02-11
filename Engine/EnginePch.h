@@ -1,6 +1,6 @@
 #pragma once
 
-// std::byte 사용하지 않는다
+// not to use std::byte
 #define _HAS_STD_BYTE 0
 
 // include
@@ -101,8 +101,8 @@ struct Vertex
 {
 	Vertex() {}
 
-	Vertex(Vec3 pos, Vec2 uv, Vec3 n, Vec3 t)
-		: pos(pos), uv(uv), normal(n), tangent(t)
+	Vertex(Vec3 p, Vec2 u, Vec3 n, Vec3 t)
+		: pos(p), uv(u), normal(n), tangent(t)
 	{
 	}
 
