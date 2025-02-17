@@ -12,7 +12,6 @@
 
 #include "TestCameraScript.h"
 #include "Resources.h"
-//#include <iostream>
 
 void SceneManager::Update()
 {
@@ -28,9 +27,7 @@ void SceneManager::Update()
 void SceneManager::Render()
 {
 	if (_activeScene)
-	{
 		_activeScene->Render();
-	}
 }
 
 void SceneManager::LoadScene(wstring sceneName)
@@ -72,16 +69,16 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 
 	shared_ptr<Scene> scene = make_shared<Scene>();
 
-#pragma region Main_Camera
+#pragma region Camera
 	{
 		shared_ptr<GameObject> camera = make_shared<GameObject>();
 		camera->SetName(L"Main_Camera");
 		camera->AddComponent(make_shared<Transform>());
-		camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45deg
+		camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45도
 		camera->AddComponent(make_shared<TestCameraScript>());
 		camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 		uint8 layerIndex = GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI");
-		camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true);
+		camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI는 안 찍음
 		scene->AddGameObject(camera);
 	}
 #pragma endregion
@@ -95,8 +92,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 		camera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
 		uint8 layerIndex = GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI");
-		camera->GetCamera()->SetCullingMaskAll();
-		camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false);
+		camera->GetCamera()->SetCullingMaskAll(); // 다 끄고
+		camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI만 찍음
 		scene->AddGameObject(camera);
 	}
 #pragma endregion
@@ -114,7 +111,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		{
 			shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Skybox");
 			shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"Sky01", L"..\\Resources\\Texture\\Sky01.jpg");
-
 			shared_ptr<Material> material = make_shared<Material>();
 			material->SetShader(shader);
 			material->SetTexture(0, texture);
@@ -152,7 +148,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma endregion
 
 #pragma region UI_Test
-	for (int32 i = 0; i < 3; ++i)
+	for (int32 i = 0; i < 3; i++)
 	{
 		shared_ptr<GameObject> sphere = make_shared<GameObject>();
 		sphere->SetLayerIndex(GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI")); // UI
@@ -177,7 +173,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	}
 #pragma endregion
 
-
 #pragma region Green Directional Light
 	{
 		shared_ptr<GameObject> light = make_shared<GameObject>();
@@ -187,7 +182,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		light->GetLight()->SetLightDirection(Vec3(1.f, 0.f, 1.f));
 		light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL_LIGHT);
 		light->GetLight()->SetDiffuse(Vec3(0.5f, 0.5f, 0.5f));
-		light->GetLight()->SetAmbient(Vec3(0.f, 0.1f, 0.1f));
+		light->GetLight()->SetAmbient(Vec3(0.1f, 0.1f, 0.1f));
 		light->GetLight()->SetSpecular(Vec3(0.3f, 0.3f, 0.3f));
 
 		scene->AddGameObject(light);
