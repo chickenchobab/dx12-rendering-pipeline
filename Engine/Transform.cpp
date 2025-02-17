@@ -21,6 +21,7 @@ void Transform::FinalUpdate()
 	matRotation *= Matrix::CreateRotationZ(_localRotation.z);
 	Matrix matTranslation = Matrix::CreateTranslation(_localPosition);
 
+	// 로컬 좌표축을 변환한다
 	_matLocal = matScale * matRotation * matTranslation;
 	_matWorld = _matLocal;
 
