@@ -36,6 +36,7 @@ public:
 
 private:
 	void CreateDefaultShader();
+	void CreateDefaultMaterial();
 
 private:
 	using KeyObjMap = std::map<wstring/*key*/, shared_ptr<Object>>;

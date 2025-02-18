@@ -13,6 +13,9 @@ public:
 	void FinalUpdate();
 
 	void Render();
+	void RenderLights();
+	void RenderFinal();
+
 private:
 	void PushLightData();
 
@@ -24,5 +27,7 @@ public:
 
 private:
 	vector<shared_ptr<GameObject>> _gameObjects;
+	vector<shared_ptr<class Camera>>	_cameras;
+	vector<shared_ptr<class Light>>		_lights;
 };
 
