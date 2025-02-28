@@ -1,14 +1,18 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CommandQueue.h"
 #include "SwapChain.h"
 #include "Engine.h"
 
-CommandQueue::~CommandQueue()
+// ************************
+// GraphicsCommandQueue
+// ************************
+
+GraphicsCommandQueue::~GraphicsCommandQueue()
 {
 	::CloseHandle(_fenceEvent);
 }
 
-void CommandQueue::Init(ComPtr<ID3D12Device> device, shared_ptr<SwapChain> swapChain)
+void GraphicsCommandQueue::Init(ComPtr<ID3D12Device> device, shared_ptr<SwapChain> swapChain)
 {
 	_swapChain = swapChain;
 
@@ -25,12 +29,12 @@ void CommandQueue::Init(ComPtr<ID3D12Device> device, shared_ptr<SwapChain> swapC
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_resCmdAlloc));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _resCmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_resCmdList));
 
-	// - CPU¿Í GPUÀÇ µ¿±âÈ­ ¼ö´ÜÀ¸·Î ¾²ÀÎ´Ù
+	// - CPUì™€ GPUì˜ ë™ê¸°í™” ìˆ˜ë‹¨ìœ¼ë¡œ ì“°ì¸ë‹¤
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
 	_fenceEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
-void CommandQueue::WaitSync()
+void GraphicsCommandQueue::WaitSync()
 {
 	// Advance the fence value to mark commands up to this fence point.
 	_fenceValue++;
@@ -52,7 +56,7 @@ void CommandQueue::WaitSync()
 }
 
 
-void CommandQueue::RenderBegin(const D3D12_VIEWPORT* vp, const D3D12_RECT* rect)
+void GraphicsCommandQueue::RenderBegin(const D3D12_VIEWPORT* vp, const D3D12_RECT* rect)
 {
 	_cmdAlloc->Reset();
 	_cmdList->Reset(_cmdAlloc.Get(), nullptr);
@@ -61,16 +65,16 @@ void CommandQueue::RenderBegin(const D3D12_VIEWPORT* vp, const D3D12_RECT* rect)
 
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 		GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->GetRTTexture(backindex)->GetTex2D().Get(),
-		D3D12_RESOURCE_STATE_PRESENT, // È­¸é Ãâ·Â(DXGI¿¡¼­ ¿øÈ°ÇÑ ½º¿ÒÀ» À§ÇØ ÃÊ±â »óÅÂ¸¦ PRESENT·Î ÁöÁ¤ÇÑ´Ù)
-		D3D12_RESOURCE_STATE_RENDER_TARGET); // ¿ÜÁÖ °á°ú¹°
+		D3D12_RESOURCE_STATE_PRESENT, // í™”ë©´ ì¶œë ¥(DXGIì—ì„œ ì›í™œí•œ ìŠ¤ì™‘ì„ ìœ„í•´ ì´ˆê¸° ìƒíƒœë¥¼ PRESENTë¡œ ì§€ì •í•œë‹¤)
+		D3D12_RESOURCE_STATE_RENDER_TARGET); // ì™¸ì£¼ ê²°ê³¼ë¬¼
 
-	_cmdList->SetGraphicsRootSignature(ROOT_SIGNATURE.Get());
+	_cmdList->SetGraphicsRootSignature(GRAPHICS_ROOT_SIGNATURE.Get());
 
 	GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::TRANSFORM)->Clear();
 	GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::MATERIAL)->Clear();
-	GEngine->GetTableDescHeap()->Clear();
+	GEngine->GetGraphicsDescHeap()->Clear();
 
-	ID3D12DescriptorHeap* descHeap = GEngine->GetTableDescHeap()->GetDescriptorHeap().Get();
+	ID3D12DescriptorHeap* descHeap = GEngine->GetGraphicsDescHeap()->GetDescriptorHeap().Get();
 	_cmdList->SetDescriptorHeaps(1, &descHeap);
 
 	_cmdList->ResourceBarrier(1, &barrier);
@@ -80,19 +84,19 @@ void CommandQueue::RenderBegin(const D3D12_VIEWPORT* vp, const D3D12_RECT* rect)
 	_cmdList->RSSetScissorRects(1, rect);
 }
 
-void CommandQueue::RenderEnd()
+void GraphicsCommandQueue::RenderEnd()
 {
 	int8 backIndex = _swapChain->GetBackBufferIndex();
 
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 		GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->GetRTTexture(backIndex)->GetTex2D().Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, // ¿ÜÁÖ °á°ú¹°
-		D3D12_RESOURCE_STATE_PRESENT); // È­¸é Ãâ·Â
+		D3D12_RESOURCE_STATE_RENDER_TARGET, // ì™¸ì£¼ ê²°ê³¼ë¬¼
+		D3D12_RESOURCE_STATE_PRESENT); // í™”ë©´ ì¶œë ¥
 
 	_cmdList->ResourceBarrier(1, &barrier);
 	_cmdList->Close();
 
-	// Ä¿¸Çµå ¸®½ºÆ® ¼öÇà
+	// ì»¤ë§¨ë“œ ë¦¬ìŠ¤íŠ¸ ìˆ˜í–‰
 	ID3D12CommandList* cmdListArr[] = { _cmdList.Get() };
 	_cmdQueue->ExecuteCommandLists(_countof(cmdListArr), cmdListArr);
 
@@ -103,7 +107,7 @@ void CommandQueue::RenderEnd()
 	_swapChain->SwapIndex();
 }
 
-void CommandQueue::FlushResourceCommandQueue()
+void GraphicsCommandQueue::FlushResourceCommandQueue()
 {
 	_resCmdList->Close();
 
@@ -114,4 +118,58 @@ void CommandQueue::FlushResourceCommandQueue()
 
 	_resCmdAlloc->Reset();
 	_resCmdList->Reset(_resCmdAlloc.Get(), nullptr);
+}
+
+// ************************
+// ComputeCommandQueue
+// ************************
+
+ComputeCommandQueue::~ComputeCommandQueue()
+{
+	::CloseHandle(_fenceEvent);
+}
+
+void ComputeCommandQueue::Init(ComPtr<ID3D12Device> device)
+{
+	D3D12_COMMAND_QUEUE_DESC computeQueueDesc = {};
+	computeQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+	computeQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	device->CreateCommandQueue(&computeQueueDesc, IID_PPV_ARGS(&_cmdQueue));
+
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&_cmdAlloc));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, _cmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_cmdList));
+
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+	_fenceEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
+}
+
+void ComputeCommandQueue::WaitSync()
+{
+	_fenceValue++;
+
+	_cmdQueue->Signal(_fence.Get(), _fenceValue);
+
+	if (_fence->GetCompletedValue() < _fenceValue)
+	{
+		_fence->SetEventOnCompletion(_fenceValue, _fenceEvent);
+		::WaitForSingleObject(_fenceEvent, INFINITE);
+	}
+}
+
+void ComputeCommandQueue::FlushComputeCommandQueue()
+{
+	_cmdList->Close();
+
+	ID3D12CommandList* cmdListArr[] = { _cmdList.Get() };
+	auto t = _countof(cmdListArr);
+	_cmdQueue->ExecuteCommandLists(_countof(cmdListArr), cmdListArr);
+
+	WaitSync();
+
+	_cmdAlloc->Reset();
+	_cmdList->Reset(_cmdAlloc.Get(), nullptr);
+
+	COMPUTE_CMD_LIST->SetComputeRootSignature(COMPUTE_ROOT_SIGNATURE.Get());
 }
