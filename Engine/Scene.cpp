@@ -1,4 +1,4 @@
-#include "pch.h"
+癤�#include "pch.h"
 #include "Scene.h"
 #include "GameObject.h"
 #include "Camera.h"
@@ -51,48 +51,74 @@ void Scene::Render()
 {	
 	PushLightData();
 
-	// SwapChain Group 초기화
+	ClearRTV();
+
+	RenderShadow();
+
+	RenderDeferred();
+
+	RenderLights();
+
+	RenderFinal();
+
+	RenderForward();
+}
+
+void Scene::ClearRTV()
+{
+	// Initialize SwapChain Group
 	int8 backIndex = GEngine->GetSwapChain()->GetBackBufferIndex();
 	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->ClearRenderTargetView(backIndex);
-	// Deferred Group 초기화
+	// Initialize Shadow Group
+	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->ClearRenderTargetView();
+	// Initialize Deferred Group
 	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->ClearRenderTargetView();
-	// Lighting Group 초기화
+	// Initialize Lighting Group
 	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->ClearRenderTargetView();
+}
 
+void Scene::RenderShadow()
+{
+	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->OMSetRenderTargets();
+
+	for (auto& light : _lights)
+	{
+		if (light->GetLightType() != LIGHT_TYPE::DIRECTIONAL_LIGHT)
+			continue;
+
+		light->RenderShadow();
+	}
+
+	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->WaitTargetToResource();
+}
+
+void Scene::RenderDeferred()
+{
 	// Deferred OMSet
 	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->OMSetRenderTargets();
 
 	shared_ptr<Camera> mainCamera = _cameras[0];
 	mainCamera->SortGameObject();
 	mainCamera->Render_Deferred();
+
 	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->WaitTargetToResource();
-
-	RenderLights();
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->WaitTargetToResource();
-
-	RenderFinal();
-
-	mainCamera->Render_Forward();
-
-	for (auto& camera : _cameras)
-	{
-		if (camera == mainCamera)
-			continue;
-
-		camera->SortGameObject();
-		camera->Render_Forward();
-	}
 }
 
 void Scene::RenderLights()
 {
+	// Restore the main camera
+	shared_ptr<Camera> mainCamera = _cameras[0];
+	Camera::S_MatView = mainCamera->GetViewMatrix();
+	Camera::S_MatProjection = mainCamera->GetProjectionMatrix();
+
 	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->OMSetRenderTargets();
 
-	// 광원을 그린다.
 	for (auto& light : _lights)
 	{
 		light->Render();
 	}
+
+	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->WaitTargetToResource();
 }
 
 void Scene::RenderFinal()
@@ -103,6 +129,21 @@ void Scene::RenderFinal()
 
 	GET_SINGLE(Resources)->Get<Material>(L"Final")->PushGraphicsData();
 	GET_SINGLE(Resources)->Get<Mesh>(L"Rectangle")->Render();
+}
+
+void Scene::RenderForward()
+{
+	shared_ptr<Camera> mainCamera = _cameras[0];
+	mainCamera->Render_Forward();
+
+	for (auto& camera : _cameras)
+	{
+		if (camera == mainCamera)
+			continue;
+
+		camera->SortGameObject();
+		camera->Render_Forward();
+	}
 }
 
 void Scene::PushLightData()
