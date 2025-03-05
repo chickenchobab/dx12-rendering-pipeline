@@ -52,7 +52,8 @@ PS_OUT PS_DirLight(VS_OUT input)
 
     LightColor color = CalculateLightColor(g_int_0, viewNormal, viewPos);
     
-    if (length(color.diffuse) != 0)
+    // Calculate shadow according to a shadow map
+    if (length(color.diffuse) != 0) 
     {
         matrix shadowCameraVP = g_mat_0;
 
@@ -68,9 +69,10 @@ PS_OUT PS_DirLight(VS_OUT input)
         uv = uv * 0.5 + 0.5;
 
         // Check if the position is within the clip space.
+        // Can be out of the clip space???
         if (0 < uv.x && uv.x < 1 && 0 < uv.y && uv.y < 1)
         {
-            float shadowDepth = g_tex_2.Sample(g_sam_0, uv).x;
+            float shadowDepth = g_tex_2.Sample(g_sam_0, uv).x; // at the first element.
             if (shadowDepth > 0 /*default is zero*/ && depth > shadowDepth + 0.00001f)
             {
                 color.diffuse *= 0.5f;

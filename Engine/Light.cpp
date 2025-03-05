@@ -41,7 +41,7 @@ void Light::Render()
 	if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::DIRECTIONAL_LIGHT)
 	{
 		shared_ptr<Texture> shadowTex = GET_SINGLE(Resources)->Get<Texture>(L"ShadowTarget");
-		_lightMaterial->SetTexture(2, shadowTex);
+		_lightMaterial->SetTexture(2, shadowTex); // 0~1 for colors
 
 		Matrix matVP = _shadowCamera->GetCamera()->GetViewMatrix() * _shadowCamera->GetCamera()->GetProjectionMatrix();
 		_lightMaterial->SetMatrix(0, matVP);

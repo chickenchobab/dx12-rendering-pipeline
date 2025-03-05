@@ -10,8 +10,8 @@ struct VS_IN
 
 struct VS_OUT
 {
-    float4 pos : SV_Position;
-    float4 clipPos : POSITION; // to pass the result without rasterizing
+    float4 pos : SV_Position; // Automatically rasterized.
+    float4 clipPos : POSITION; // To pass the raw position.
 };
 
 VS_OUT VS_Main(VS_IN input)
@@ -26,7 +26,7 @@ VS_OUT VS_Main(VS_IN input)
 
 float4 PS_Main(VS_OUT input) : SV_Target
 {   
-    // z value in projection space
+    // Return normalized depth of a vertex.
     return float4(input.clipPos.z / input.clipPos.w, 0.f, 0.f, 0.f);
 }
 
