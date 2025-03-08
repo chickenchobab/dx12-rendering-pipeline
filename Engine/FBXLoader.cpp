@@ -24,8 +24,8 @@ void FBXLoader::LoadFbx(const wstring& path)
 	Import(path);
 
 	// Animation	
-	//LoadBones(_scene->GetRootNode());
-	//LoadAnimationInfo();
+	LoadBones(_scene->GetRootNode());
+	LoadAnimationInfo();
 
 	// 로드된 데이터 파싱 (Mesh/Material/Skin)
 	ParseNode(_scene->GetRootNode());
@@ -428,6 +428,7 @@ void FBXLoader::LoadAnimationData(FbxMesh* mesh, FbxMeshInfo* meshInfo)
 					int32 boneIdx = FindBoneIndex(cluster->GetLink()->GetName());
 					assert(boneIdx >= 0);
 
+					// Extracting informations
 					FbxAMatrix matNodeTransform = GetTransform(mesh->GetNode());
 					LoadBoneWeight(cluster, boneIdx, meshInfo);
 					LoadOffsetMatrix(cluster, matNodeTransform, boneIdx, meshInfo);
